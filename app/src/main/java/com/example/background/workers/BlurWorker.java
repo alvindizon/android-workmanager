@@ -27,12 +27,11 @@ public class BlurWorker extends Worker {
     @NonNull
     @Override
     public Result doWork() {
-        Log.d(TAG, "doWork: start");
+
         Context appContext = getApplicationContext();
         String resourceUri = getInputData().getString(KEY_IMAGE_URI);
-
-
-
+        WorkerUtils.makeStatusNotification("Blurring image...", appContext);
+        WorkerUtils.sleep();
         try {
             if(TextUtils.isEmpty(resourceUri)) {
                 Log.e(TAG, "Invalid input uri");

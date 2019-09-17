@@ -27,7 +27,8 @@ public class CleanupWorker extends Worker {
     @Override
     public Result doWork() {
         Context appContext = getApplicationContext();
-
+        WorkerUtils.makeStatusNotification("Cleaning up temp files...", appContext);
+        WorkerUtils.sleep();
         try {
             File outputDirectory = new File(appContext.getFilesDir(), OUTPUT_PATH);
             if(outputDirectory.exists()) {

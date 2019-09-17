@@ -38,8 +38,10 @@ public class SaveFileToImageWorker extends Worker {
     @Override
     public Result doWork() {
         Context appContext = getApplicationContext();
-
         ContentResolver resolver = appContext.getContentResolver();
+
+        WorkerUtils.makeStatusNotification("Saving blurred image...", appContext);
+        WorkerUtils.sleep();
         try {
             // get temporary image
             String resourceUri = getInputData().getString(KEY_IMAGE_URI);

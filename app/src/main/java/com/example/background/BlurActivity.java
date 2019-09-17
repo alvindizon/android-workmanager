@@ -103,6 +103,10 @@ public class BlurActivity extends AppCompatActivity {
                 }
             }
         });
+
+        mCancelButton.setOnClickListener(v -> {
+            mViewModel.cancelWork();
+        });
     }
 
     /**
