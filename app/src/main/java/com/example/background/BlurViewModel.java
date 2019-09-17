@@ -19,6 +19,7 @@ package com.example.background;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.work.Data;
+import androidx.work.ExistingWorkPolicy;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkContinuation;
 import androidx.work.WorkManager;
@@ -31,6 +32,7 @@ import com.example.background.workers.BlurWorker;
 import com.example.background.workers.CleanupWorker;
 import com.example.background.workers.SaveFileToImageWorker;
 
+import static com.example.background.Constants.IMAGE_MANIPULATION_WORK_NAME;
 import static com.example.background.Constants.KEY_IMAGE_URI;
 
 public class BlurViewModel extends AndroidViewModel {
@@ -48,9 +50,14 @@ public class BlurViewModel extends AndroidViewModel {
      * @param blurLevel The amount to blur the image
      */
     void applyBlur(int blurLevel) {
-        // Start with Cleanup temp images WorkRequest
+        // Blur one picture at a time: having a unique work name allows us to specify what to do
+        // if there is an unfinished work chain with the same name. In this case,
+        // if the user decides to blur another image before the current one is finished,
+        // we want to stop the current one and start blurring the new image.
         WorkContinuation continuation =
-                workManager.beginWith(new OneTimeWorkRequest.Builder(CleanupWorker.class).build());
+                workManager.beginUniqueWork(IMAGE_MANIPULATION_WORK_NAME,
+                        ExistingWorkPolicy.REPLACE,
+                        OneTimeWorkRequest.from(CleanupWorker.class));
 
         // blur the image x number of times
         for(int i = 0; i < blurLevel; i++) {
