@@ -24,7 +24,7 @@ task clean(type: Delete) {
 
 ext.versions = [:]
 versions.compileSdk = 29
-versions.minSdk = 16
+versions.minSdk = 18
 versions.targetSdk = 29
 versions.work = "2.2.0"
 
