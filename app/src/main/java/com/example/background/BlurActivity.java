@@ -19,10 +19,13 @@ package com.example.background;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProviders;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import androidx.annotation.Nullable;
+import androidx.work.Data;
 import androidx.work.WorkInfo;
 
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -30,6 +33,10 @@ import android.widget.ProgressBar;
 import android.widget.RadioGroup;
 
 import com.bumptech.glide.Glide;
+
+import org.w3c.dom.Text;
+
+import static com.example.background.Constants.KEY_IMAGE_URI;
 
 
 public class BlurActivity extends AppCompatActivity {
@@ -57,7 +64,7 @@ public class BlurActivity extends AppCompatActivity {
 
         // Image uri should be stored in the ViewModel; put it there then display
         Intent intent = getIntent();
-        String imageUriExtra = intent.getStringExtra(Constants.KEY_IMAGE_URI);
+        String imageUriExtra = intent.getStringExtra(KEY_IMAGE_URI);
         mViewModel.setImageUri(imageUriExtra);
         if (mViewModel.getImageUri() != null) {
             Glide.with(this).load(mViewModel.getImageUri()).into(mImageView);
@@ -75,8 +82,24 @@ public class BlurActivity extends AppCompatActivity {
 
                 if(outputWorkInfo.getState().isFinished()) {
                     showWorkFinished();
+                    Data outputData = outputWorkInfo.getOutputData();
+                    String outputUri = outputData.getString(KEY_IMAGE_URI);
+                    if(!TextUtils.isEmpty(outputUri)) {
+                        mOutputButton.setVisibility(View.VISIBLE);
+                        mViewModel.setOutputUri(outputUri);
+                    }
                 } else {
                     showWorkInProgress();
+                }
+            }
+        });
+
+        mOutputButton.setOnClickListener(v -> {
+            Uri currentUri = mViewModel.getOutputUri();
+            if(currentUri != null) {
+                Intent actionView = new Intent(Intent.ACTION_VIEW, currentUri);
+                if(actionView.resolveActivity(getPackageManager()) != null) {
+                    startActivity(actionView);
                 }
             }
         });
