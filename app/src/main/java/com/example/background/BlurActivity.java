@@ -21,6 +21,8 @@ import androidx.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.os.Bundle;
 import androidx.annotation.Nullable;
+import androidx.work.WorkInfo;
+
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -63,6 +65,21 @@ public class BlurActivity extends AppCompatActivity {
 
         // Setup blur image file button
         mGoButton.setOnClickListener(view -> mViewModel.applyBlur(getBlurLevel()));
+
+        mViewModel.getSavedWorkInfo().observe(this, workInfos -> {
+            if(workInfos != null && !workInfos.isEmpty()) {
+
+                // there will only be one WorkInfo tagged with TAG_OUTPUT
+                // since we made the chain of work unique
+                WorkInfo outputWorkInfo = workInfos.get(0);
+
+                if(outputWorkInfo.getState().isFinished()) {
+                    showWorkFinished();
+                } else {
+                    showWorkInProgress();
+                }
+            }
+        });
     }
 
     /**

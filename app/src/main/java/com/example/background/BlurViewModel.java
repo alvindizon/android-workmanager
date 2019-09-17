@@ -18,10 +18,12 @@ package com.example.background;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
+import androidx.lifecycle.LiveData;
 import androidx.work.Data;
 import androidx.work.ExistingWorkPolicy;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkContinuation;
+import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
 
 import android.app.Application;
@@ -32,17 +34,22 @@ import com.example.background.workers.BlurWorker;
 import com.example.background.workers.CleanupWorker;
 import com.example.background.workers.SaveFileToImageWorker;
 
+import java.util.List;
+
 import static com.example.background.Constants.IMAGE_MANIPULATION_WORK_NAME;
 import static com.example.background.Constants.KEY_IMAGE_URI;
+import static com.example.background.Constants.TAG_OUTPUT;
 
 public class BlurViewModel extends AndroidViewModel {
 
     private Uri mImageUri;
     private WorkManager workManager;
+    private LiveData<List<WorkInfo>> savedWorkInfo;
 
     public BlurViewModel(@NonNull Application application) {
         super(application);
         workManager = WorkManager.getInstance(application);
+        savedWorkInfo = workManager.getWorkInfosByTagLiveData(TAG_OUTPUT);
     }
 
     /**
@@ -74,6 +81,7 @@ public class BlurViewModel extends AndroidViewModel {
 
         // Save temp blurred image to final save location
         OneTimeWorkRequest save = new OneTimeWorkRequest.Builder(SaveFileToImageWorker.class)
+                .addTag(TAG_OUTPUT)
                 .build();
         continuation = continuation.then(save);
 
@@ -112,4 +120,7 @@ public class BlurViewModel extends AndroidViewModel {
         return builder.build();
     }
 
+    public LiveData<List<WorkInfo>> getSavedWorkInfo() {
+        return savedWorkInfo;
+    }
 }
